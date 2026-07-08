@@ -57,3 +57,69 @@ Development Environment Updated
 The deployment completes successfully, making the latest frontend and backend changes available in the development environment.
 
 This automated pipeline enables consistent, repeatable deployments by integrating source control, continuous integration, secure AWS authentication, application build, deployment, and service management into a single workflow.
+
+
+FLOW 2:
+                 Automated CI/CD Pipeline
+     (Vue + Node.js Deployment to AWS EC2)
+
+                   ┌─────────────────┐
+                   │    Developer    │
+                   └────────┬────────┘
+                            │
+                         git push
+                            │
+                            ▼
+                   ┌─────────────────┐
+                   │ GitHub Repository│
+                   └────────┬────────┘
+                            │
+                            ▼
+                   ┌─────────────────┐
+                   │ GitHub Actions  │
+                   └────────┬────────┘
+                            │
+                            ▼
+                   ┌─────────────────┐
+                   │ Build Pipeline  │
+                   └────────┬────────┘
+                            │
+          ┌─────────────────┴─────────────────┐
+          │                                   │
+          ▼                                   ▼
+ ┌──────────────────┐               ┌──────────────────┐
+ │ Build Vue App    │               │ Build Node.js API│
+ └────────┬─────────┘               └────────┬─────────┘
+          │                                   │
+          └─────────────────┬─────────────────┘
+                            │
+                            ▼
+                ┌────────────────────────┐
+                │ Deploy to AWS EC2      │
+                │ via SSH / SCP          │
+                └──────────┬─────────────┘
+                           │
+          ┌────────────────┴────────────────┐
+          │                                 │
+          ▼                                 ▼
+ ┌──────────────────┐             ┌──────────────────┐
+ │ Restart PM2      │             │ Update Vue Files │
+ │ (Node.js API)    │             │ (Nginx Web Root) │
+ └────────┬─────────┘             └────────┬─────────┘
+          │                                │
+          └────────────────┬───────────────┘
+                           │
+                           ▼
+                  ┌─────────────────────┐
+                  │      Nginx          │
+                  │ Reverse Proxy       │
+                  │ + Static Hosting    │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │ Development Server  │
+                  │ Vue + Node.js API   │
+                  └─────────────────────┘
+
+                  
