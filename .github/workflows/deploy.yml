@@ -67,7 +67,7 @@ jobs:
 
         source: "frontend/dist/*"
 
-        target: "/home/ec2-user"
+        target: "/var/www/app"
 
 
 
