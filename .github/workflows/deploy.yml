@@ -1,70 +1,118 @@
-name: Deploy
+name: Deploy Vue + Node.js Application
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
 
-  deploy:
+  build-and-deploy:
 
     runs-on: ubuntu-latest
 
     steps:
 
-      - uses: actions/checkout@v4
+    # 1. Checkout source code
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
 
-      - name: Install Frontend
-        run: |
-          cd frontend
-          npm install
-          npm run build
+    # 2. Setup Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
-      - name: Install Backend
-        run: |
-          cd backend
-          npm install
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/<ROLE_NAME>
-          aws-region: us-east-1
+    # ==========================
+    # Build Vue Application
+    # ==========================
 
-      - name: Copy Frontend
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "frontend/dist/*"
-          target: "/var/www/vue-app"
+    - name: Install Vue Dependencies
+      working-directory: frontend
+      run: npm install
 
-      - name: Copy Backend
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "backend/*"
-          target: "/home/ubuntu/apps/backend"
 
-      - name: Restart Backend
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/ubuntu/apps/backend
-            npm install --omit=dev
-            pm2 restart backend
+    - name: Build Vue Application
+      working-directory: frontend
+      run: npm run build
+
+
+
+    # ==========================
+    # Prepare Node.js Backend
+    # ==========================
+
+    - name: Install Backend Dependencies
+      working-directory: backend
+      run: npm install --production
+
+
+
+    # ==========================
+    # Deploy Vue to EC2
+    # ==========================
+
+    - name: Deploy Vue Build to EC2
+      uses: appleboy/scp-action@v0.1.7
+
+      with:
+
+        host: ${{ secrets.EC2_HOST }}
+
+        username: ${{ secrets.EC2_USER }}
+
+        key: ${{ secrets.EC2_SSH_KEY }}
+
+        source: "frontend/dist/*"
+
+        target: "/var/www/vue-app"
+
+
+
+    # ==========================
+    # Deploy Node.js Backend
+    # ==========================
+
+    - name: Deploy Node.js Backend
+      uses: appleboy/scp-action@v0.1.7
+
+      with:
+
+        host: ${{ secrets.EC2_HOST }}
+
+        username: ${{ secrets.EC2_USER }}
+
+        key: ${{ secrets.EC2_SSH_KEY }}
+
+        source: "backend/*"
+
+        target: "/home/ec2-user/backend"
+
+
+
+    # ==========================
+    # Restart Application
+    # ==========================
+
+    - name: Restart Node.js using PM2
+      uses: appleboy/ssh-action@v1.0.3
+
+      with:
+
+        host: ${{ secrets.EC2_HOST }}
+
+        username: ${{ secrets.EC2_USER }}
+
+        key: ${{ secrets.EC2_SSH_KEY }}
+
+        script: |
+
+          cd /home/ec2-user/backend
+
+          npm install --production
+
+          pm2 restart backend || pm2 start server.js --name backend
+
+          pm2 save
