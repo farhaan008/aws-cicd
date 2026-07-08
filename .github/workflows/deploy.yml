@@ -68,6 +68,7 @@ jobs:
         source: "frontend/dist/*"
 
         target: "/var/www/app"
+        strip_components: 2
 
 
 
