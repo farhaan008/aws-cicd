@@ -67,7 +67,7 @@ jobs:
 
         source: "frontend/dist/*"
 
-        target: "/home/ec2-user/frontend"
+        target: "/home/ec2-user"
 
 
 
@@ -88,7 +88,7 @@ jobs:
 
         source: "*"
 
-        target: "/home/ec2-user/backend"
+        target: "/home/ec2-user"
 
 
 
