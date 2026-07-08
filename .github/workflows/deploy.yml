@@ -36,7 +36,7 @@ jobs:
 
     - name: Build Vue Application
       working-directory: frontend
-      run: npm run build
+      run: npm run build:prod
 
 
 
@@ -67,7 +67,7 @@ jobs:
 
         source: "frontend/dist/*"
 
-        target: "/var/www/vue-app"
+        target: "/home/ec2-user/frontend"
 
 
 
