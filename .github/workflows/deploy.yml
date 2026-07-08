@@ -86,7 +86,7 @@ jobs:
 
         key: ${{ secrets.EC2_SSH_KEY }}
 
-        source: "backend/*"
+        source: "*"
 
         target: "/home/ec2-user/backend"
 
