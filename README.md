@@ -34,6 +34,8 @@ Automated CI/CD pipeline that builds and deploys Vue and Node.js applications to
                         ▼
                 Development Environment
 
+
+
 This flow illustrates an automated CI/CD deployment pipeline that deploys both the frontend and backend applications to a development environment using GitHub Actions and AWS.
 
 Developer Pushes Code
